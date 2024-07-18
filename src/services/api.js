@@ -3,7 +3,7 @@ import axios from "axios";
 
 const Api = axios.create({
   //set default endpoint API
-  baseURL: "https://vdo-react.vercel.app",
+  baseURL: "https://api-video.vercel.app",
 });
 
 export default Api;

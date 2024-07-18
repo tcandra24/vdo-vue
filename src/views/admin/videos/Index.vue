@@ -4,6 +4,6 @@
 
 <template>
   <div>
-    <!--  -->
+    <p>Video Index</p>
   </div>
 </template>

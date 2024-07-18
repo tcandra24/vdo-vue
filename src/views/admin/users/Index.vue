@@ -4,6 +4,6 @@
 
 <template>
   <div>
-    <!--  -->
+    <p>Users Index</p>
   </div>
 </template>

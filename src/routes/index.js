@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth) && !token) {
     next({ name: "login" });
   } else if ((to.name === "login" || to.name === "register") && token) {
-    next({ name: "dashboard" });
+    next({ name: "dashboard.index" });
   } else {
     next();
   }

@@ -4,6 +4,6 @@
 
 <template>
   <div>
-    <!--  -->
+    <p>Video Create</p>
   </div>
 </template>

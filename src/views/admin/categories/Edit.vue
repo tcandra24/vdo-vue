@@ -4,6 +4,6 @@
 
 <template>
   <div>
-    <!--  -->
+    <p>Category Edit</p>
   </div>
 </template>
