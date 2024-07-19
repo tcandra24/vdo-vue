@@ -1,10 +1,12 @@
 <script setup>
 import registerBg2 from "../assets/img/register_bg_2.png";
+import Navbar from "../components/auth/Navbar.vue";
+import FooterSmall from "../components/auth/FooterSmall.vue";
 </script>
 
 <template>
   <div>
-    <!-- <navbar /> -->
+    <Navbar />
     <main>
       <section class="relative w-full h-full py-40 min-h-screen">
         <div
@@ -18,7 +20,7 @@ import registerBg2 from "../assets/img/register_bg_2.png";
             </div>
           </div>
         </div>
-        <!-- <footer-small absolute /> -->
+        <FooterSmall absolute />
       </section>
     </main>
   </div>
