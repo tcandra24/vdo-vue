@@ -14,7 +14,7 @@ const user = JSON.parse(cookies.get("user"));
         >
           <div class="block w-full overflow-x-auto p-10">
             <div
-              class="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3 rounded justify-center"
+              class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 rounded justify-center"
               role="alert"
             >
               <p>Welcome {{ user.name }}</p>
