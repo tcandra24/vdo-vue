@@ -2,6 +2,10 @@
 import { reactive } from "vue";
 import api from "../../services/api";
 import cookies from "js-cookie";
+import { ref } from "vue";
+
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 import AuthLayout from "../../layouts/Auth.vue";
 
@@ -13,6 +17,7 @@ const user = reactive({
 });
 
 const router = useRouter();
+const errors = ref([]);
 
 const login = async () => {
   try {
@@ -30,7 +35,13 @@ const login = async () => {
 
     router.push({ name: "dashboard.index" });
   } catch (error) {
-    console.log(error);
+    if (Array.isArray(error.response.data.message)) {
+      errors.value = error.response.data.message;
+    } else {
+      toast.error(error.response.data.message, {
+        theme: "colored",
+      });
+    }
   }
 };
 </script>
@@ -41,6 +52,17 @@ const login = async () => {
       class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0"
     >
       <div class="flex-auto px-4 lg:px-10 py-10 pt-10">
+        <div
+          v-if="errors.length > 0"
+          class="flex items-center bg-red-500 text-white text-sm font-bold px-4 py-3 m-3 rounded"
+          role="alert"
+        >
+          <ul class="list-none">
+            <li v-for="(error, index) in errors" :key="index">
+              {{ error.message }}
+            </li>
+          </ul>
+        </div>
         <form @submit.prevent="login">
           <div class="relative w-full mb-3">
             <label
