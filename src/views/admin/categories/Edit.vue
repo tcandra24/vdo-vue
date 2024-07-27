@@ -6,6 +6,9 @@ import { storeToRefs } from "pinia";
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+
 const store = useCategoriesStore();
 const { loading } = storeToRefs(store);
 const { show, update } = store;
@@ -16,6 +19,7 @@ const route = useRoute();
 const id = route.params.id;
 
 const name = ref("");
+const errors = ref([]);
 
 const getCategory = async () => {
   const { success, message, data } = await show(id);
@@ -33,14 +37,25 @@ const submit = async () => {
     name: name.value,
   };
 
-  const { success, message } = await update(id, payload);
+  const data = await update(id, payload);
 
-  if (!success) {
-    console.log(message);
+  if (!data.success) {
+    if (Array.isArray(data.response.data.message)) {
+      errors.value = data.response.data.message;
+    } else {
+      toast.error(data.response.data.message, {
+        theme: "colored",
+      });
+    }
     return;
   }
 
-  router.push({ name: "categories.index" });
+  toast.success(data.message, {
+    theme: "colored",
+    onClose: () => {
+      router.push({ name: "categories.index" });
+    },
+  });
 };
 
 onMounted(() => {
@@ -61,6 +76,17 @@ onMounted(() => {
             </div>
           </div>
           <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
+            <div
+              v-if="errors.length > 0"
+              class="flex items-center bg-red-500 text-white text-sm font-bold px-4 py-3 m-3 rounded"
+              role="alert"
+            >
+              <ul class="list-none">
+                <li v-for="(error, index) in errors" :key="index">
+                  {{ error.message }}
+                </li>
+              </ul>
+            </div>
             <form @submit.prevent="submit">
               <h6
                 class="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase"

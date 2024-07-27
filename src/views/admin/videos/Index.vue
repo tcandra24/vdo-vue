@@ -1,5 +1,52 @@
 <script setup>
+import { onMounted } from "vue";
+import TableDropdown from "../../../components/admin/TableDropdown.vue";
 import AdminLayout from "../../../layouts/Admin.vue";
+import { useVideosStore } from "../../../stores/videosStore";
+import { storeToRefs } from "pinia";
+
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
+
+const store = useVideosStore();
+const { videos, loading } = storeToRefs(store);
+const { fetch, destroy } = store;
+
+const deleteVideo = async (id) => {
+  const { success, message } = await destroy(id);
+
+  if (!success) {
+    console.log(message);
+    return;
+  }
+
+  toast.success(message, {
+    theme: "colored",
+  });
+
+  fetch();
+};
+
+const deleteConfirm = (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteVideo(id);
+    }
+  });
+};
+
+onMounted(() => {
+  fetch();
+});
 </script>
 
 <template>
@@ -16,8 +63,15 @@ import AdminLayout from "../../../layouts/Admin.vue";
               </div>
             </div>
           </div>
+
+          <router-link class="px-4 py-3" :to="{ name: 'videos.create' }">
+            <button
+              class="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Add Video
+            </button>
+          </router-link>
           <div class="block w-full overflow-x-auto">
-            <!-- Projects table -->
             <table class="items-center w-full bg-transparent border-collapse">
               <thead>
                 <tr>
@@ -26,449 +80,119 @@ import AdminLayout from "../../../layouts/Admin.vue";
                     :class="[
                       color === 'light'
                         ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
+                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
                     ]"
                   >
-                    Project
+                    Preview
                   </th>
                   <th
                     class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
                     :class="[
                       color === 'light'
                         ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
+                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
                     ]"
                   >
-                    Budget
+                    Name
                   </th>
                   <th
                     class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
                     :class="[
                       color === 'light'
                         ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
+                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
                     ]"
                   >
-                    Status
+                    Video ID
                   </th>
                   <th
                     class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
                     :class="[
                       color === 'light'
                         ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
+                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
                     ]"
                   >
-                    Users
+                    Category
                   </th>
                   <th
                     class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
                     :class="[
                       color === 'light'
                         ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
-                    ]"
-                  >
-                    Completion
-                  </th>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-800 text-emerald-300 border-emerald-700',
+                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
                     ]"
                   ></th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center"
-                  >
-                    <img
-                      :src="bootstrap"
-                      class="h-12 w-12 bg-white rounded-full border"
-                      alt="..."
-                    />
-                    <span
-                      class="ml-3 font-bold"
-                      :class="[
-                        color === 'light' ? 'text-blueGray-600' : 'text-white',
-                      ]"
+                <tr v-if="loading">
+                  <td colspan="5">
+                    <div
+                      class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
+                      role="alert"
                     >
-                      Argon Design System
-                    </span>
-                  </th>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    $2,500 USD
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <i class="fas fa-circle text-orange-500 mr-2"></i> pending
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex">
-                      <img
-                        :src="team1"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow"
-                      />
-                      <img
-                        :src="team2"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team3"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team4"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
+                      <p>Loading</p>
                     </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex items-center">
-                      <span class="mr-2">60%</span>
-                      <div class="relative w-full">
-                        <div
-                          class="overflow-hidden h-2 text-xs flex rounded bg-red-200"
-                        >
-                          <div
-                            style="width: 60%"
-                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                  >
-                    <table-dropdown />
                   </td>
                 </tr>
-                <tr>
-                  <th
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center"
-                  >
-                    <img
-                      :src="angular"
-                      class="h-12 w-12 bg-white rounded-full border"
-                      alt="..."
-                    />
-                    <span
-                      class="ml-3 font-bold"
-                      :class="[
-                        color === 'light' ? 'text-blueGray-600' : 'text-white',
-                      ]"
+                <template v-if="!loading && videos.length > 0">
+                  <tr v-for="(video, index) in videos" :key="index">
+                    <td
+                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                     >
-                      Angular Now UI Kit PRO
-                    </span>
-                  </th>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    $1,800 USD
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <i class="fas fa-circle text-emerald-500 mr-2"></i>
-                    completed
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex">
-                      <img
-                        :src="team1"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow"
-                      />
-                      <img
-                        :src="team2"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team3"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team4"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex items-center">
-                      <span class="mr-2">100%</span>
-                      <div class="relative w-full">
-                        <div
-                          class="overflow-hidden h-2 text-xs flex rounded bg-emerald-200"
-                        >
-                          <div
-                            style="width: 100%"
-                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                  >
-                    <table-dropdown />
-                  </td>
-                </tr>
-                <tr>
-                  <th
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center"
-                  >
-                    <img
-                      :src="sketch"
-                      class="h-12 w-12 bg-white rounded-full border"
-                      alt="..."
-                    />
-                    <span
-                      class="ml-3 font-bold"
-                      :class="[
-                        color === 'light' ? 'text-blueGray-600' : 'text-white',
-                      ]"
+                      <router-link
+                        :to="{ name: 'videos.show', params: { id: video.id } }"
+                      >
+                        <img
+                          class="rounded-lg h-auto"
+                          :src="`https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg`"
+                          :alt="video.name"
+                        />
+                      </router-link>
+                    </td>
+                    <td
+                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                     >
-                      Black Dashboard Sketch
-                    </span>
-                  </th>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    $3,150 USD
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <i class="fas fa-circle text-red-500 mr-2"></i> delayed
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex">
-                      <img
-                        :src="team1"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow"
-                      />
-                      <img
-                        :src="team2"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team3"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team4"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex items-center">
-                      <span class="mr-2">73%</span>
-                      <div class="relative w-full">
-                        <div
-                          class="overflow-hidden h-2 text-xs flex rounded bg-red-200"
-                        >
-                          <div
-                            style="width: 73%"
-                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                  >
-                    <table-dropdown />
-                  </td>
-                </tr>
-                <tr>
-                  <th
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center"
-                  >
-                    <img
-                      :src="react"
-                      class="h-12 w-12 bg-white rounded-full border"
-                      alt="..."
-                    />
-                    <span
-                      class="ml-3 font-bold"
-                      :class="[
-                        color === 'light' ? 'text-blueGray-600' : 'text-white',
-                      ]"
+                      {{ video.name }}
+                    </td>
+                    <td
+                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                     >
-                      React Material Dashboard
-                    </span>
-                  </th>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    $4,400 USD
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <i class="fas fa-circle text-teal-500 mr-2"></i> on schedule
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex">
-                      <img
-                        :src="team1"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow"
-                      />
-                      <img
-                        :src="team2"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team3"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team4"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex items-center">
-                      <span class="mr-2">90%</span>
-                      <div class="relative w-full">
-                        <div
-                          class="overflow-hidden h-2 text-xs flex rounded bg-teal-200"
-                        >
-                          <div
-                            style="width: 90%"
-                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-teal-500"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                  >
-                    <table-dropdown />
-                  </td>
-                </tr>
-                <tr>
-                  <th
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left flex items-center"
-                  >
-                    <img
-                      :src="vue"
-                      class="h-12 w-12 bg-white rounded-full border"
-                      alt="..."
-                    />
-                    <span
-                      class="ml-3 font-bold"
-                      :class="[
-                        color === 'light' ? 'text-blueGray-600' : 'text-white',
-                      ]"
+                      {{ video.video_id }}
+                    </td>
+                    <td
+                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                     >
-                      React Material Dashboard
-                    </span>
-                  </th>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    $2,200 USD
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <i class="fas fa-circle text-emerald-500 mr-2"></i>
-                    completed
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex">
-                      <img
-                        :src="team1"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow"
+                      <span
+                        class="bg-emerald-100 text-white text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-emerald-700 dark:text-green-300"
+                      >
+                        {{ video.category.name }}
+                      </span>
+                    </td>
+                    <td
+                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
+                    >
+                      <TableDropdown
+                        :funcDelete="deleteConfirm"
+                        :param="video.id"
+                        :linkName="`videos.edit`"
                       />
-                      <img
-                        :src="team2"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team3"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                      <img
-                        :src="team4"
-                        alt="..."
-                        class="w-10 h-10 rounded-full border-2 border-blueGray-50 shadow -ml-4"
-                      />
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                  >
-                    <div class="flex items-center">
-                      <span class="mr-2">100%</span>
-                      <div class="relative w-full">
-                        <div
-                          class="overflow-hidden h-2 text-xs flex rounded bg-emerald-200"
-                        >
-                          <div
-                            style="width: 100%"
-                            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500"
-                          ></div>
-                        </div>
+                    </td>
+                  </tr>
+                </template>
+                <template>
+                  <tr>
+                    <td>
+                      <div
+                        class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
+                        role="alert"
+                      >
+                        <p>Videos is Empty</p>
                       </div>
-                    </div>
-                  </td>
-                  <td
-                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                  >
-                    <table-dropdown />
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
+                </template>
               </tbody>
             </table>
           </div>

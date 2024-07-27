@@ -8,6 +8,9 @@ import { storeToRefs } from "pinia";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
+
 const store = useCategoriesStore();
 const { categories, loading } = storeToRefs(store);
 const { fetch, destroy } = store;
@@ -28,7 +31,17 @@ const deleteCategory = async (id) => {
 };
 
 const deleteConfirm = (id) => {
-  deleteCategory(id);
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteCategory(id);
+    }
+  });
 };
 
 onMounted(() => {

@@ -3,6 +3,9 @@ import AdminLayout from "../../../layouts/Admin.vue";
 import { useCategoriesStore } from "../../../stores/categoriesStore";
 import { storeToRefs } from "pinia";
 
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -13,20 +16,33 @@ const { post } = store;
 const router = useRouter();
 
 const name = ref("");
+const errors = ref([]);
 
 const submit = async () => {
   const payload = {
     name: name.value,
   };
 
-  const { success, message } = await post(payload);
+  const data = await post(payload);
 
-  if (!success) {
-    console.log(message);
+  if (!data.success) {
+    if (Array.isArray(data.response.data.message)) {
+      errors.value = data.response.data.message;
+    } else {
+      toast.error(data.response.data.message, {
+        theme: "colored",
+      });
+    }
     return;
   }
 
-  router.push({ name: "categories.index" });
+  toast.success(data.message, {
+    theme: "colored",
+    onClose: () => {
+      router.push({ name: "categories.index" });
+    }
+  });
+
 };
 </script>
 
@@ -43,6 +59,17 @@ const submit = async () => {
             </div>
           </div>
           <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
+            <div
+              v-if="errors.length > 0"
+              class="flex items-center bg-red-500 text-white text-sm font-bold px-4 py-3 m-3 rounded"
+              role="alert"
+            >
+              <ul class="list-none">
+                <li v-for="(error, index) in errors" :key="index">
+                  {{ error.message }}
+                </li>
+              </ul>
+            </div>
             <form @submit.prevent="submit">
               <h6
                 class="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase"
