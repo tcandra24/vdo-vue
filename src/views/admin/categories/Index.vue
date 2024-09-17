@@ -11,6 +11,11 @@ import "vue3-toastify/dist/index.css";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
 
+import { useAppStore } from "../../../stores/appStore";
+
+const storeApp = useAppStore();
+const { fetch: fetchApp } = storeApp;
+
 const store = useCategoriesStore();
 const { categories, loading } = storeToRefs(store);
 const { fetch, destroy } = store;
@@ -27,6 +32,7 @@ const deleteCategory = async (id) => {
     theme: "colored",
   });
 
+  fetchApp();
   fetch();
 };
 

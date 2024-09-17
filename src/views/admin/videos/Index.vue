@@ -11,6 +11,11 @@ import "vue3-toastify/dist/index.css";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
 
+import { useAppStore } from "../../../stores/appStore";
+
+const storeApp = useAppStore();
+const { fetch: fetchApp } = storeApp;
+
 const store = useVideosStore();
 const { videos, loading } = storeToRefs(store);
 const { fetch, destroy } = store;
@@ -27,6 +32,7 @@ const deleteVideo = async (id) => {
     theme: "colored",
   });
 
+  fetchApp();
   fetch();
 };
 
@@ -71,130 +77,60 @@ onMounted(() => {
               Add Video
             </button>
           </router-link>
-          <div class="block w-full overflow-x-auto">
-            <table class="items-center w-full bg-transparent border-collapse">
-              <thead>
-                <tr>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
-                    ]"
+          <div class="block w-full overflow-x-auto p-3">
+            <div
+              v-if="loading"
+              class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
+              role="alert"
+            >
+              <p>Loading</p>
+            </div>
+
+            <div
+              v-if="!loading && videos.length === 0"
+              class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
+              role="alert"
+            >
+              <p>Videos is Empty</p>
+            </div>
+
+            <div
+              class="flex flex-wrap gap-4"
+              v-if="!loading && videos.length > 0"
+            >
+              <div
+                v-for="(video, index) in videos"
+                :key="index"
+                class="w-full md:w-6/12 lg:w-3/12"
+              >
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                  <router-link
+                    :to="{ name: 'videos.show', params: { id: video.id } }"
                   >
-                    Preview
-                  </th>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
-                    ]"
-                  >
-                    Name
-                  </th>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
-                    ]"
-                  >
-                    Video ID
-                  </th>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
-                    ]"
-                  >
-                    Category
-                  </th>
-                  <th
-                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
-                    :class="[
-                      color === 'light'
-                        ? 'bg-blueGray-50 text-blueGray-500 border-blueGray-100'
-                        : 'bg-emerald-600 text-emerald-300 border-emerald-500',
-                    ]"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="loading">
-                  <td colspan="5">
-                    <div
-                      class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
-                      role="alert"
+                    <img
+                      class="w-full"
+                      :src="`https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg`"
+                      :alt="video.name"
+                    />
+                  </router-link>
+                  <div class="px-5 py-2">
+                    <div class="font-bold text-xl mb-2">{{ video.name }}</div>
+                  </div>
+                  <div class="px-5 pt-1 pb-2 flex justify-between">
+                    <span
+                      class="bg-emerald-100 text-white text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-emerald-700 dark:text-green-300"
                     >
-                      <p>Loading</p>
-                    </div>
-                  </td>
-                </tr>
-                <template v-if="!loading && videos.length > 0">
-                  <tr v-for="(video, index) in videos" :key="index">
-                    <td
-                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                    >
-                      <router-link
-                        :to="{ name: 'videos.show', params: { id: video.id } }"
-                      >
-                        <img
-                          class="rounded-lg h-auto"
-                          :src="`https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg`"
-                          :alt="video.name"
-                        />
-                      </router-link>
-                    </td>
-                    <td
-                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                    >
-                      {{ video.name }}
-                    </td>
-                    <td
-                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                    >
-                      {{ video.video_id }}
-                    </td>
-                    <td
-                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                    >
-                      <span
-                        class="bg-emerald-100 text-white text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-emerald-700 dark:text-green-300"
-                      >
-                        {{ video.category.name }}
-                      </span>
-                    </td>
-                    <td
-                      class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-right"
-                    >
-                      <TableDropdown
-                        :funcDelete="deleteConfirm"
-                        :param="video.id"
-                        :linkName="`videos.edit`"
-                      />
-                    </td>
-                  </tr>
-                </template>
-                <template>
-                  <tr>
-                    <td>
-                      <div
-                        class="flex items-center bg-emerald-500 text-white text-sm font-bold px-4 py-3 m-3 rounded justify-center"
-                        role="alert"
-                      >
-                        <p>Videos is Empty</p>
-                      </div>
-                    </td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
+                      {{ video.category.name }}
+                    </span>
+                    <TableDropdown
+                      :funcDelete="deleteConfirm"
+                      :param="video.id"
+                      :linkName="`videos.edit`"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -9,6 +9,11 @@ import "vue3-toastify/dist/index.css";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { useAppStore } from "../../../stores/appStore";
+
+const storeApp = useAppStore();
+const { fetch: fetchApp } = storeApp;
+
 const store = useCategoriesStore();
 const { loading } = storeToRefs(store);
 const { post } = store;
@@ -36,13 +41,14 @@ const submit = async () => {
     return;
   }
 
+  fetchApp();
+
   toast.success(data.message, {
     theme: "colored",
     onClose: () => {
       router.push({ name: "categories.index" });
-    }
+    },
   });
-
 };
 </script>
 

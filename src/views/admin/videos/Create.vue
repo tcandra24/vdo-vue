@@ -10,6 +10,11 @@ import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
+import { useAppStore } from "../../../stores/appStore";
+
+const storeApp = useAppStore();
+const { fetch: fetchApp } = storeApp;
+
 const storeVideo = useVideosStore();
 const storeCategory = useCategoriesStore();
 const { loading: loadingVideo } = storeToRefs(storeVideo);
@@ -43,6 +48,8 @@ const submit = async () => {
     }
     return;
   }
+
+  fetchApp();
 
   toast.success(data.message, {
     theme: "colored",
